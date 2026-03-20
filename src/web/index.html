@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ CombatEnvolved - RPG Adventure</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0d1117 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* === PANTALLAS === */
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === PANTALLA 1: SETUP === */
+        .setup-screen {
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .setup-card {
+            background: rgba(15, 15, 35, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .setup-card h1 {
+            text-align: center;
+            font-size: 2em;
+            background: linear-gradient(135deg, #c084fc, #8b5cf6, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .setup-card .subtitle {
+            text-align: center;
+            color: #a78bfa;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8em;
+            color: #8b5cf6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: rgba(30, 20, 60, 0.8);
+            color: #e0e0e0;
+            font-size: 0.95em;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #8b5cf6;
+            outline: none;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #1a0a2e;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .stats-preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 8px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+        }
+
+        .stat-box .val {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .stat-hp {
+            color: #4ade80;
+        }
+
+        .stat-atk {
+            color: #f87171;
+        }
+
+        .stat-def {
+            color: #60a5fa;
+        }
+
+        /* === PANTALLA 2: MAPA === */
+        .map-screen {
+            padding: 20px;
+        }
+
+        .map-header {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .map-header h1 {
+            font-size: 1.8em;
+            color: #c084fc;
+        }
+
+        .hero-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 10px;
+            margin: 10px auto;
+            max-width: 600px;
+        }
+
+        .hero-bar span {
+            font-size: 0.9em;
+        }
+
+        .map-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 900px;
+            margin: 15px auto;
+        }
+
+        .route-label {
+            grid-column: 1 / -1;
+            font-family: 'Cinzel', serif;
+            color: #a78bfa;
+            font-size: 1em;
+            padding: 8px 0 2px;
+            border-top: 1px solid rgba(139, 92, 246, 0.15);
+        }
+
+        .map-node {
+            padding: 12px 8px;
+            background: rgba(30, 20, 60, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .map-node:hover {
+            border-color: #8b5cf6;
+            transform: scale(1.05);
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .map-node.current {
+            border-color: #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .map-node.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .map-node.completed {
+            border-color: #6b7280;
+            opacity: 0.5;
+        }
+
+        .map-node .node-icon {
+            font-size: 1.6em;
+        }
+
+        .map-node .node-name {
+            font-size: 0.7em;
+            margin-top: 3px;
+            color: #a78bfa;
+        }
+
+        .map-node .node-num {
+            font-size: 0.65em;
+            color: #6b7280;
+        }
+
+        .hint-box {
+            max-width: 600px;
+            margin: 15px auto;
+            padding: 15px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .hint-box .hint-icon {
+            font-size: 1.3em;
+        }
+
+        .hint-box .hint-text {
+            color: #fbbf24;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        /* === PANTALLA 3: COMBATE === */
+        .combat-screen {
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .combat-arena {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(15, 15, 35, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .arena-header {
+            padding: 12px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(244, 114, 182, 0.1));
+        }
+
+        .arena-header h2 {
+            color: #c084fc;
+            font-size: 1.2em;
+        }
+
+        .fighters {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 25px 15px;
+            position: relative;
+        }
+
+        .fighter {
+            text-align: center;
+        }
+
+        .fighter .icon {
+            font-size: 4em;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .fighter .name {
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .fighter .hp-bar {
+            width: 120px;
+            height: 10px;
+            background: #1a1a2e;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px auto;
+        }
+
+        .fighter .hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #4ade80);
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+
+        .fighter .hp-text {
+            font-size: 0.8em;
+            color: #9ca3af;
+        }
+
+        .vs-badge {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5em;
+            color: #ef4444;
+            font-weight: 900;
+        }
+
+        @keyframes attackLeft {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(60px) scale(1.2);
+            }
+        }
+
+        @keyframes attackRight {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(-60px) scale(1.2);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-8px);
+            }
+
+            75% {
+                transform: translateX(8px);
+            }
+        }
+
+        @keyframes hit {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .attacking-left .icon {
+            animation: attackLeft 0.5s ease;
+        }
+
+        .attacking-right .icon {
+            animation: attackRight 0.5s ease;
+        }
+
+        .taking-hit .icon {
+            animation: shake 0.3s ease, hit 0.3s ease;
+        }
+
+        .combat-log {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            font-family: monospace;
+            font-size: 0.82em;
+            line-height: 1.5;
+        }
+
+        .combat-log p {
+            padding: 2px 0;
+        }
+
+        .log-turn {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .log-winner {
+            color: #4ade80;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .log-header {
+            color: #c084fc;
+            font-weight: bold;
+        }
+
+        .combat-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .combat-actions .btn {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 0.85em;
+        }
+
+        /* === PANTALLA 4: CAJA MISTERIOSA === */
+        .mystery-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .mystery-overlay.active {
+            display: flex;
+        }
+
+        .mystery-card {
+            text-align: center;
+            padding: 30px;
+            background: rgba(15, 15, 35, 0.95);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            max-width: 350px;
+        }
+
+        .mystery-card .box-icon {
+            font-size: 4em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .mystery-card h2 {
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+
+        .mystery-card .buff-result {
+            padding: 15px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .mystery-card .buff-name {
+            font-size: 1.2em;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .mystery-card .buff-stats {
+            color: #d4d4d4;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        @keyframes boxBounce {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15) rotate(5deg);
+            }
+        }
+
+        .box-animating .box-icon {
+            animation: boxBounce 0.6s ease 3;
+        }
+
+        /* === PANTALLA RESULTADO === */
+        .result-screen {
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 40px;
+            background: rgba(15, 15, 35, 0.9);
+            border-radius: 16px;
+            max-width: 450px;
+        }
+
+        .result-card .big-icon {
+            font-size: 5em;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .result-card h1 {
+            margin-bottom: 10px;
+        }
+
+        .win h1 {
+            color: #4ade80;
+        }
+
+        .lose h1 {
+            color: #ef4444;
+        }
+
+        .result-card p {
+            color: #a78bfa;
+            margin-bottom: 20px;
+        }
+
+        /* === GAME OVER / TRAP === */
+        .trap h1 {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ============ PANTALLA 1: PREPARACION DEL HEROE ============ -->
+    <div id="setup-screen" class="screen setup-screen active">
+        <div class="setup-card">
+            <h1>⚔️ CombatEnvolved</h1>
+            <p class="subtitle">Prepara a tu héroe para la aventura</p>
+
+            <div class="form-group">
+                <label>Nombre del Héroe</label>
+                <input type="text" id="heroName" placeholder="Ingresa el nombre..." value="Arthas">
+            </div>
+            <div class="form-group">
+                <label>Clase</label>
+                <select id="heroClass">
+                    <option value="Guerrero">⚔️ Guerrero (HP:120 ATK:12 DEF:8)</option>
+                    <option value="Mago">🔮 Mago (HP:80 ATK:18 DEF:4)</option>
+                    <option value="Arquero">🏹 Arquero (HP:90 ATK:15 DEF:6)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Arma</label>
+                <select id="heroWeapon">
+                    <option value="">Sin arma</option>
+                    <option value="Espada de Fuego">🗡️ Espada de Fuego (ATK+15)</option>
+                    <option value="Arco Elfico">🏹 Arco Élfico (ATK+12)</option>
+                    <option value="Baston Arcano">🪄 Bastón Arcano (ATK+18)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Armadura</label>
+                <select id="heroArmor">
+                    <option value="">Sin armadura</option>
+                    <option value="Armadura de Hierro">🛡️ Armadura de Hierro (DEF+10)</option>
+                    <option value="Tunica Magica">🧥 Túnica Mágica (DEF+6)</option>
+                    <option value="Cota de Malla">⛓️ Cota de Malla (DEF+8)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Poder Especial</label>
+                <select id="heroPower">
+                    <option value="">Sin poder</option>
+                    <option value="Bola de Fuego">🔥 Bola de Fuego (ATK+10)</option>
+                    <option value="Escudo Divino">✨ Escudo Divino (HP+30)</option>
+                    <option value="Furia Berserker">💢 Furia Berserker (ATK+20, HP-10)</option>
+                </select>
+            </div>
+
+            <div id="statsPreview" class="stats-preview" style="display:none;">
+                <div class="stat-box">
+                    <div class="val stat-hp" id="prevHp">-</div>
+                    <div>HP</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val stat-atk" id="prevAtk">-</div>
+                    <div>ATK</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val stat-def" id="prevDef">-</div>
+                    <div>DEF</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="startAdventure()">🚀 Iniciar Aventura</button>
+        </div>
+    </div>
+
+    <!-- ============ PANTALLA 2: MAPA DE AVENTURA ============ -->
+    <div id="map-screen" class="screen map-screen">
+        <div class="map-header">
+            <h1>🗺️ Mapa de Aventura</h1>
+            <p style="color:#a78bfa;">Nodo actual: <span id="nodeProgress">1</span>/5 — Elige tu camino</p>
+        </div>
+        <div class="hero-bar">
+            <span>🦸 <strong id="mapHeroName">Héroe</strong></span>
+            <span class="stat-hp">❤️ <span id="mapHp">0</span></span>
+            <span class="stat-atk">⚔️ <span id="mapAtk">0</span></span>
+            <span class="stat-def">🛡️ <span id="mapDef">0</span></span>
+        </div>
+        <div id="mapContainer" class="map-container"></div>
+        <div id="hintBox" class="hint-box">
+            <span class="hint-icon">🔮</span>
+            <p class="hint-text" id="hintText">Elige una ruta para comenzar tu aventura...</p>
+        </div>
+    </div>
+
+    <!-- ============ PANTALLA 3: COMBATE ============ -->
+    <div id="combat-screen" class="screen combat-screen">
+        <div class="combat-arena">
+            <div class="arena-header">
+                <h2 id="arenaTitle">⚔️ Combate</h2>
+            </div>
+            <div class="fighters">
+                <div class="fighter" id="heroFighter">
+                    <span class="icon" id="heroIcon">🦸</span>
+                    <div class="name" id="heroFightName">Héroe</div>
+                    <div class="hp-bar">
+                        <div class="hp-fill" id="heroHpFill" style="width:100%"></div>
+                    </div>
+                    <div class="hp-text" id="heroHpText">HP: 100</div>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div class="fighter" id="enemyFighter">
+                    <span class="icon" id="enemyIcon">👺</span>
+                    <div class="name" id="enemyFightName">Enemigo</div>
+                    <div class="hp-bar">
+                        <div class="hp-fill" id="enemyHpFill" style="width:100%"></div>
+                    </div>
+                    <div class="hp-text" id="enemyHpText">HP: 60</div>
+                </div>
+            </div>
+            <div class="combat-log" id="combatLog">
+                <p style="color:#6b7280;">Preparándose para el combate...</p>
+            </div>
+            <div class="combat-actions" id="combatActions">
+                <button class="btn btn-danger" onclick="startCombat()">⚔️ ¡Luchar!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ OVERLAY CAJA MISTERIOSA ============ -->
+    <div id="mysteryOverlay" class="mystery-overlay">
+        <div class="mystery-card" id="mysteryCard">
+            <span class="box-icon">🎁</span>
+            <h2>¡Caja Misteriosa!</h2>
+            <p style="color:#d4d4d4;">Has encontrado una caja. ¿Quieres abrirla?</p>
+            <div id="buffResult" class="buff-result" style="display:none;">
+                <div class="buff-name" id="buffName"></div>
+                <div class="buff-stats" id="buffStats"></div>
+            </div>
+            <button class="btn btn-gold" id="openBoxBtn" onclick="openMysteryBox()">🔓 Abrir Caja</button>
+            <button class="btn btn-primary" id="skipBoxBtn" onclick="skipMysteryBox()" style="margin-top:8px;">⏭️
+                Continuar sin abrir</button>
+            <button class="btn btn-primary" id="continueAfterBoxBtn" onclick="continueToCombat()"
+                style="display:none;margin-top:8px;">⚔️ ¡Al Combate!</button>
+        </div>
+    </div>
+
+    <!-- ============ PANTALLA RESULTADO ============ -->
+    <div id="result-screen" class="screen result-screen">
+        <div class="result-card" id="resultCard">
+            <span class="big-icon" id="resultIcon">👑</span>
+            <h1 id="resultTitle">Resultado</h1>
+            <p id="resultText">Texto</p>
+            <button class="btn btn-primary" onclick="location.reload()">🔄 Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        // ============ ESTADO DEL JUEGO ============
+        const gameState = {
+            heroName: '',
+            heroStats: { vida: 0, ataque: 0, defensa: 0 },
+            currentNodeIndex: 0,   // 0-4 (qué nodo del mapa estoy)
+            selectedRoute: -1,
+            mapData: null,
+            currentEnemy: null,
+            heroIcon: '🦸'
+        };
+
+        // ============ PANTALLA 1: SETUP ============
+        async function startAdventure() {
+            const name = document.getElementById('heroName').value || 'Héroe';
+            gameState.heroName = name;
+
+            // Determinar ícono según clase
+            const cls = document.getElementById('heroClass').value;
+            if (cls === 'Guerrero') gameState.heroIcon = '⚔️';
+            else if (cls === 'Mago') gameState.heroIcon = '🔮';
+            else gameState.heroIcon = '🏹';
+
+            // Enviar equipo al backend
+            const params = new URLSearchParams({
+                nombre: name,
+                clase: cls,
+                arma: document.getElementById('heroWeapon').value,
+                armadura: document.getElementById('heroArmor').value,
+                poder: document.getElementById('heroPower').value
+            });
+
+            try {
+                const res = await fetch('/equipar', { method: 'POST', body: params });
+                const data = await res.json();
+                gameState.heroStats = { vida: data.vida, ataque: data.ataque, defensa: data.defensa };
+
+                // Cargar mapa
+                const mapRes = await fetch('/mapa', { method: 'POST', body: new URLSearchParams({ nodo: '0' }) });
+                gameState.mapData = await mapRes.json();
+
+                showScreen('map-screen');
+                renderMap();
+                updateHeroBar();
+            } catch (err) {
+                alert('Error al conectar con el servidor');
+            }
+        }
+
+        // ============ PANTALLA 2: MAPA ============
+        function renderMap() {
+            const container = document.getElementById('mapContainer');
+            container.innerHTML = '';
+            const routeNames = gameState.mapData.routeNames;
+            const routes = gameState.mapData.routes;
+
+            for (let r = 0; r < routes.length; r++) {
+                // Etiqueta de la ruta
+                const label = document.createElement('div');
+                label.className = 'route-label';
+                label.textContent = (r + 1) + '. ' + routeNames[r];
+                container.appendChild(label);
+
+                // Nodos de la ruta
+                for (let n = 0; n < routes[r].length; n++) {
+                    const node = routes[r][n];
+                    const div = document.createElement('div');
+                    div.className = 'map-node';
+
+                    // Solo el nodo actual+1 es seleccionable en cada ruta
+                    if (n === gameState.currentNodeIndex) {
+                        div.classList.add('current');
+                        div.onclick = () => selectNode(r, n);
+                    } else if (n < gameState.currentNodeIndex) {
+                        div.classList.add('completed');
+                    } else {
+                        div.classList.add('locked');
+                    }
+
+                    div.innerHTML = `
+                    <div class="node-icon">${n <= gameState.currentNodeIndex ? node.enemyIcon : '❓'}</div>
+                    <div class="node-name">${n <= gameState.currentNodeIndex ? node.scenarioName : '???'}</div>
+                    <div class="node-num">Nodo ${n + 1}</div>
+                `;
+                    container.appendChild(div);
+                }
+            }
+
+            document.getElementById('nodeProgress').textContent = (gameState.currentNodeIndex + 1);
+        }
+
+        function updateHeroBar() {
+            document.getElementById('mapHeroName').textContent = gameState.heroName;
+            document.getElementById('mapHp').textContent = gameState.heroStats.vida;
+            document.getElementById('mapAtk').textContent = gameState.heroStats.ataque;
+            document.getElementById('mapDef').textContent = gameState.heroStats.defensa;
+        }
+
+        async function selectNode(routeIndex, nodeIndex) {
+            gameState.selectedRoute = routeIndex;
+
+            // Obtener info del nodo del backend
+            const res = await fetch('/nodo', {
+                method: 'POST',
+                body: new URLSearchParams({ ruta: routeIndex, nodo: nodeIndex })
+            });
+            gameState.currentEnemy = await res.json();
+
+            // Mostrar pista
+            if (gameState.currentEnemy.hint) {
+                document.getElementById('hintText').textContent = '🔮 ' + gameState.currentEnemy.hint;
+            }
+
+            // Si el nodo tiene caja misteriosa, mostrarla primero
+            if (gameState.currentEnemy.hasMysteryBox) {
+                showMysteryBox();
+            } else {
+                showCombatScreen();
+            }
+        }
+
+        // ============ CAJA MISTERIOSA ============
+        function showMysteryBox() {
+            document.getElementById('mysteryOverlay').classList.add('active');
+            document.getElementById('mysteryCard').classList.add('box-animating');
+            document.getElementById('buffResult').style.display = 'none';
+            document.getElementById('openBoxBtn').style.display = 'block';
+            document.getElementById('skipBoxBtn').style.display = 'block';
+            document.getElementById('continueAfterBoxBtn').style.display = 'none';
+        }
+
+        async function openMysteryBox() {
+            try {
+                const res = await fetch('/caja', { method: 'POST', body: '' });
+                const data = await res.json();
+
+                // Actualizar stats del héroe con el buff temporal
+                gameState.heroStats = data.heroStats;
+                updateHeroBar();
+
+                // Mostrar resultado del buff
+                document.getElementById('buffName').textContent = '✨ ' + data.buff.name;
+                let statsText = [];
+                if (data.buff.attackBonus !== 0) statsText.push('ATK ' + (data.buff.attackBonus > 0 ? '+' : '') + data.buff.attackBonus);
+                if (data.buff.defenseBonus !== 0) statsText.push('DEF ' + (data.buff.defenseBonus > 0 ? '+' : '') + data.buff.defenseBonus);
+                if (data.buff.healthBonus !== 0) statsText.push('HP ' + (data.buff.healthBonus > 0 ? '+' : '') + data.buff.healthBonus);
+                document.getElementById('buffStats').textContent = statsText.join(' | ');
+                document.getElementById('buffResult').style.display = 'block';
+
+                document.getElementById('openBoxBtn').style.display = 'none';
+                document.getElementById('skipBoxBtn').style.display = 'none';
+                document.getElementById('continueAfterBoxBtn').style.display = 'block';
+            } catch (err) {
+                alert('Error al abrir caja');
+            }
+        }
+
+        function skipMysteryBox() {
+            document.getElementById('mysteryOverlay').classList.remove('active');
+            showCombatScreen();
+        }
+
+        function continueToCombat() {
+            document.getElementById('mysteryOverlay').classList.remove('active');
+            showCombatScreen();
+        }
+
+        // ============ PANTALLA 3: COMBATE ============
+        function showCombatScreen() {
+            const enemy = gameState.currentEnemy;
+            document.getElementById('arenaTitle').textContent = '⚔️ ' + enemy.scenarioName;
+            document.getElementById('heroIcon').textContent = gameState.heroIcon;
+            document.getElementById('heroFightName').textContent = gameState.heroName;
+            document.getElementById('heroHpText').textContent = 'HP: ' + gameState.heroStats.vida;
+            document.getElementById('heroHpFill').style.width = '100%';
+
+            document.getElementById('enemyIcon').textContent = enemy.enemyIcon;
+            document.getElementById('enemyFightName').textContent = enemy.enemyName;
+            document.getElementById('enemyHpText').textContent = 'HP: ' + enemy.enemyHealth;
+            document.getElementById('enemyHpFill').style.width = '100%';
+
+            document.getElementById('combatLog').innerHTML = '<p style="color:#6b7280;">¡' + enemy.enemyName + ' aparece! Preparándose...</p>';
+            document.getElementById('combatActions').innerHTML = '<button class="btn btn-danger" onclick="startCombat()">⚔️ ¡Luchar!</button>';
+
+            showScreen('combat-screen');
+        }
+
+        async function startCombat() {
+            document.getElementById('combatActions').innerHTML = '<p style="color:#6b7280;">Combatiendo...</p>';
+
+            try {
+                const res = await fetch('/combatir', {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        ruta: gameState.selectedRoute,
+                        nodo: gameState.currentNodeIndex
+                    })
+                });
+                const data = await res.json();
+                await animateCombatLog(data.log);
+            } catch (err) {
+                alert('Error en combate');
+            }
+        }
+
+        async function animateCombatLog(log) {
+            const logDiv = document.getElementById('combatLog');
+            logDiv.innerHTML = '';
+
+            const heroMaxHp = gameState.heroStats.vida;
+            const enemyMaxHp = gameState.currentEnemy.enemyHealth;
+            let heroHp = heroMaxHp;
+            let enemyHp = enemyMaxHp;
+            let heroWon = false;
+            let isHeroTurn = true;
+
+            for (let i = 0; i < log.length; i++) {
+                const line = log[i];
+                await new Promise(r => setTimeout(r, 250));
+
+                const p = document.createElement('p');
+
+                if (line.startsWith('===')) {
+                    p.className = 'log-header';
+                } else if (line.startsWith('>>')) {
+                    p.className = 'log-turn';
+                    isHeroTurn = true;
+                } else if (line.includes('GANA')) {
+                    p.className = 'log-winner';
+                    heroWon = line.includes(gameState.heroName);
+                } else if (line.includes('ataca')) {
+                    // Extraer daño y animar
+                    const dmgMatch = line.match(/(\d+) daño/);
+                    const hpMatch = line.match(/HP: (\d+)/);
+                    if (dmgMatch && hpMatch) {
+                        const currentHp = parseInt(hpMatch[1]);
+                        if (line.startsWith(gameState.heroName)) {
+                            // Héroe ataca
+                            document.getElementById('heroFighter').classList.add('attacking-left');
+                            setTimeout(() => {
+                                document.getElementById('heroFighter').classList.remove('attacking-left');
+                                document.getElementById('enemyFighter').classList.add('taking-hit');
+                                setTimeout(() => document.getElementById('enemyFighter').classList.remove('taking-hit'), 300);
+                            }, 250);
+                            enemyHp = currentHp;
+                            document.getElementById('enemyHpFill').style.width = Math.max(0, (enemyHp / enemyMaxHp) * 100) + '%';
+                            document.getElementById('enemyHpText').textContent = 'HP: ' + Math.max(0, enemyHp);
+                        } else {
+                            // Enemigo ataca
+                            document.getElementById('enemyFighter').classList.add('attacking-right');
+                            setTimeout(() => {
+                                document.getElementById('enemyFighter').classList.remove('attacking-right');
+                                document.getElementById('heroFighter').classList.add('taking-hit');
+                                setTimeout(() => document.getElementById('heroFighter').classList.remove('taking-hit'), 300);
+                            }, 250);
+                            heroHp = currentHp;
+                            document.getElementById('heroHpFill').style.width = Math.max(0, (heroHp / heroMaxHp) * 100) + '%';
+                            document.getElementById('heroHpText').textContent = 'HP: ' + Math.max(0, heroHp);
+                        }
+                    }
+                }
+
+                p.textContent = line;
+                logDiv.appendChild(p);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+
+            // Resultado del combate
+            await new Promise(r => setTimeout(r, 800));
+
+            if (heroWon) {
+                gameState.currentNodeIndex++;
+
+                if (gameState.currentNodeIndex >= 5) {
+                    // Llegó al final de la ruta
+                    if (gameState.currentEnemy.hasTreasure) {
+                        showResult('win', '👑', '¡Encontraste el Tesoro!', '¡' + gameState.heroName + ' ha completado la aventura y encontró el legendario tesoro!');
+                    } else if (gameState.currentEnemy.isTrap) {
+                        showResult('trap', '💀', '¡Era una Trampa!', 'Este camino no tenía el tesoro... ¡Pero sobreviviste! Intenta otra ruta.');
+                    }
+                } else {
+                    // Continuar aventura
+                    document.getElementById('combatActions').innerHTML = '<button class="btn btn-primary" onclick="backToMap()">🗺️ Volver al Mapa</button>';
+                }
+            } else {
+                showResult('lose', '💀', 'Game Over', gameState.heroName + ' ha caído en batalla. ¡Inténtalo de nuevo!');
+            }
+        }
+
+        function backToMap() {
+            // Recargar info del mapa
+            showScreen('map-screen');
+            renderMap();
+            updateHeroBar();
+        }
+
+        // ============ RESULTADO ============
+        function showResult(type, icon, title, text) {
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultText').textContent = text;
+            const card = document.getElementById('resultCard');
+            card.className = 'result-card ' + type;
+            showScreen('result-screen');
+        }
+
+        // ============ UTILIDADES ============
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
